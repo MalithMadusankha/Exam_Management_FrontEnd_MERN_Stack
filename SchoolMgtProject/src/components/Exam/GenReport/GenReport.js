@@ -4,7 +4,11 @@ import { IoIosArrowForward } from "react-icons/io";
 import axios from 'axios';
 import moment from 'moment';
 import GeneratePDF from './GeneratePDF'
+import { Bar } from 'react-chartjs-2';
 
+const stay=
+    {labelsA: [],
+    dataA:[]};
 
 
 class GenReport extends Component{
@@ -17,21 +21,33 @@ class GenReport extends Component{
         this.onSubmit = this.onSubmit.bind(this);
     
         this.state = {
-          examId: '',
-          name: '',
-          grade: 0,
-          subject: '',
-          date: '',
-          timeStart: '',
-          timeEnd: '',
-          notice: '',
-          mark: [{
-            stdID: '',
-            mark:0
-          }],
-          tmpID:'',
-          tmpMark:null
-        }
+            examId: '',
+            name: '',
+            grade: 0,
+            subject: '',
+            date: '',
+            timeStart: '',
+            timeEnd: '',
+            notice: '',
+            mark: [{
+              stdID: '',
+              mark:0
+            }],
+            tmpID:'',
+            tmpMark:null,
+            sta :{
+              labels: [],
+              datasets: [
+                {
+                  label: 'Rainfall',
+                  backgroundColor: 'rgba(75,192,192,1)',
+                  borderColor: 'rgba(0,0,0,1)',
+                  borderWidth: 2,
+                  data: []
+                }
+              ]
+            }
+          }
 
         
       }
@@ -51,6 +67,33 @@ class GenReport extends Component{
                 notice: response.data.exam.notice,
                 mark: response.data.exam.mark,
        })
+
+       console.log("Bar Chart");
+       stay.labelsA.splice(response.data.exam.mark[0].stdID);
+
+    for (let index = 0; index < response.data.exam.mark.length; index++) {
+        console.log("Chart Data : "+response.data.exam.mark[index].stdID);
+        stay.labelsA.push(response.data.exam.mark[index].stdID);
+        console.log("Chart Data : "+response.data.exam.mark[index].mark);
+        stay.dataA.push(response.data.exam.mark[index].mark);
+        console.log("Chart Data STD : "+stay.labelsA); 
+        console.log("Chart Data Data : "+stay.dataA); 
+    }
+
+    this.setState({
+
+        sta:{
+            labels:[... stay.labelsA],
+            datasets:[{
+                label: 'Exam Marks',
+                backgroundColor: 'rgba(75,192,192,1)',
+                borderColor: 'rgba(0,0,0,1)',
+                borderWidth: 2,
+                data: [... stay.dataA]
+            }]
+        }
+        
+    })
    })
    .catch((error) => {
      console.log(error);
@@ -100,19 +143,31 @@ onChangeSearch(e) {
                         >Search</button>
                     </div>
                 </div>
+
+                <div className="w-75">
+                   
+                    <Bar
+                    data={this.state.sta}
+                    options={{
+                        title:{
+                        display:true,
+                        text:'Average Rainfall per month',
+                        fontSize:20
+                        },
+                        legend:{
+                        display:true,
+                        position:'right'
+                        }
+                    }}
+                    />
+                </div>
+
+
                 <h3 className="text-start m-3"> Result </h3>
                 <div>
                     <form>
                         <div>
-                            {
-                                // exams.map((val, key) => {
-                                //     return (
-                                //         <table>
-                                //             <h4>Result Details are  not setting </h4>
-                                //         </table>
-                                //     )})y
-                            }
-                                            <div>
+                            <div>
                     <form>
                         <div>
                         <div className="shadow my-3 p-3 rounded bg-dark bg-gradient text-white"> 
